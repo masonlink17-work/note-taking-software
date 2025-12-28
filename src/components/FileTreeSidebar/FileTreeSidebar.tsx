@@ -34,6 +34,12 @@ function TreeNode({ item, level, expandedFolders, onToggleFolder }: TreeNodeProp
   const handleClick = () => {
     if (isFolder && folder) {
       onToggleFolder(folder.id)
+      // Navigate to associated object if folder has one
+      const mapStore = useMapStore.getState()
+      const associatedObject = mapStore.objects.find((obj) => obj.folderId === folder.id)
+      if (associatedObject) {
+        selectObject(associatedObject.id)
+      }
     } else if (note) {
       selectNote(note.id)
       // If note is linked to objects, select the first one
