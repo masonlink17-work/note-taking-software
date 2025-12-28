@@ -4,6 +4,8 @@ import { OrbitControls } from '@react-three/drei'
 import MapScene from './components/MapScene/MapScene'
 import ObjectToolbar from './components/ObjectToolbar/ObjectToolbar'
 import ObjectProperties from './components/ObjectProperties/ObjectProperties'
+import NotePanel from './components/NotePanel/NotePanel'
+import NoteSearch from './components/NoteSearch/NoteSearch'
 import { useMapStore } from './store/mapStore'
 import './App.css'
 
@@ -35,6 +37,8 @@ function App() {
     <div className="app-container">
       <ObjectToolbar />
       <ObjectProperties />
+      <NoteSearch />
+      <NotePanel />
       <Canvas
         camera={{
           position: [0, 25, 0],

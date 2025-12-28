@@ -3,14 +3,15 @@
 // Map object types
 export type MapObjectType = 'chest' | 'castle' | 'house' | 'tree' | 'mountain'
 
-// Placeholder for future note types
+// Note interface
 export interface Note {
   id: string
   title: string
   content: string
   createdAt: Date
   updatedAt: Date
-  tags?: string[]
+  tags: string[]
+  linkedObjectIds: string[] // Object IDs this note is linked to
 }
 
 // Map object interface with all properties
