@@ -2,15 +2,23 @@
 
 A 3D note-taking environment with an interactive map interface, resembling a top-down video game view (like Clash of Clans). Users can interact with elements (chests, castles, houses) to organize their notes in a visually engaging way.
 
-## Current Status: Phase 1 - Foundation ✅
+## Current Status: Phase 2 - Object System ✅
 
-Phase 1 is complete! The project now has:
+Phase 2 is complete! The project now has:
 - ✅ Development environment set up (Node.js, TypeScript, Vite)
 - ✅ React + React Three Fiber integration
 - ✅ Basic 3D scene with top-down camera view
 - ✅ Camera controls (pan, zoom, rotate)
 - ✅ Grid/terrain for visual reference
-- ✅ Proper project structure and folder organization
+- ✅ State management with Zustand
+- ✅ Interactive 3D objects (chest, castle, house, tree, mountain)
+- ✅ Object placement system (click to place)
+- ✅ Object selection with visual feedback (green wireframe highlight)
+- ✅ Object movement (drag and drop)
+- ✅ Object deletion (Delete/Backspace key)
+- ✅ Object customization (color, rotation, scale)
+- ✅ UI toolbar for object placement
+- ✅ Properties panel for selected objects
 
 ## Getting Started
 
@@ -45,24 +53,41 @@ npm run dev
 ```
 note-taking-software/
 ├── src/
-│   ├── components/          # React components
-│   │   └── MapScene/        # 3D map scene component
-│   ├── App.tsx              # Main app component
-│   ├── main.tsx             # Application entry point
-│   └── index.css            # Global styles
-├── index.html               # HTML entry point
-├── package.json             # Dependencies and scripts
-├── tsconfig.json            # TypeScript configuration
-├── vite.config.ts           # Vite configuration
-└── TECHNICAL_ANALYSIS.md    # Detailed technical analysis and roadmap
+│   ├── components/              # React components
+│   │   ├── MapScene/            # 3D map scene component
+│   │   ├── MapObjects/          # 3D object components (chest, castle, etc.)
+│   │   ├── ObjectToolbar/       # UI toolbar for object placement
+│   │   └── ObjectProperties/    # Properties panel for selected objects
+│   ├── store/                   # State management
+│   │   └── mapStore.ts          # Zustand store for map objects
+│   ├── types/                   # TypeScript type definitions
+│   │   └── index.ts             # Type definitions
+│   ├── App.tsx                  # Main app component
+│   ├── main.tsx                 # Application entry point
+│   └── index.css                # Global styles
+├── index.html                   # HTML entry point
+├── package.json                 # Dependencies and scripts
+├── tsconfig.json                # TypeScript configuration
+├── vite.config.ts               # Vite configuration
+└── TECHNICAL_ANALYSIS.md        # Detailed technical analysis and roadmap
 ```
 
 ## Controls
 
+### Camera
 - **Left Click + Drag**: Rotate camera around the scene
 - **Right Click + Drag**: Pan the camera
 - **Scroll Wheel**: Zoom in/out
 - **Middle Click + Drag**: Pan (alternative)
+
+### Object Interaction
+- **Click Object Toolbar Button**: Select object type to place
+- **Click on Map**: Place selected object type (when in placement mode)
+- **Click Object**: Select an object (shows green highlight)
+- **Left Click + Drag Object**: Move selected object
+- **Delete/Backspace**: Delete selected object
+- **Escape**: Cancel placement mode or clear selection
+- **Properties Panel**: Customize selected object (color, rotation, scale)
 
 ## Technology Stack
 
@@ -71,11 +96,12 @@ note-taking-software/
 - **React Three Fiber** - React renderer for Three.js
 - **Three.js** - 3D graphics library
 - **@react-three/drei** - Useful helpers for React Three Fiber
+- **Zustand** - State management
 - **Vite** - Build tool and dev server
 
 ## Next Steps
 
-See `TECHNICAL_ANALYSIS.md` for the complete roadmap. The next phase will focus on implementing the object system (chests, castles, houses) that can be placed and interacted with on the map.
+See `TECHNICAL_ANALYSIS.md` for the complete roadmap. The next phase (Phase 3) will focus on implementing the note-taking system that links notes to map objects.
 
 ## License
 

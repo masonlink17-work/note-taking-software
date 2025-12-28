@@ -1,0 +1,97 @@
+.object-properties {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 16px;
+  z-index: 100;
+  min-width: 250px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+.object-properties h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #555;
+}
+
+.property-group {
+  margin-bottom: 16px;
+}
+
+.property-group:last-child {
+  margin-bottom: 0;
+}
+
+.property-group label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.property-group label span:first-child {
+  color: #ccc;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.property-value {
+  color: #fff;
+  font-weight: 400;
+}
+
+.color-input {
+  width: 60px;
+  height: 32px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  padding: 2px;
+}
+
+.color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-input::-webkit-color-swatch {
+  border: 1px solid #777;
+  border-radius: 3px;
+}
+
+.slider-input {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #444;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4a9eff;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
+.slider-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4a9eff;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
