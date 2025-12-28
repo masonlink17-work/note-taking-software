@@ -15,6 +15,9 @@ interface NoteStore {
   linkNoteToObject: (noteId: string, objectId: string) => void
   unlinkNoteFromObject: (noteId: string, objectId: string) => void
 
+  // Note-folder management
+  moveNoteToFolder: (noteId: string, folderId: string | null) => void
+
   // Selection
   selectNote: (id: string | null) => void
   clearNoteSelection: () => void
@@ -31,7 +34,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   selectedNoteId: null,
   searchQuery: '',
 
-  createNote: (title = 'Untitled Note') => {
+  createNote: (title = 'Untitled Note', folderId: string | null = null) => {
     const newNote: Note = {
       id: generateNoteId(),
       title,
@@ -40,6 +43,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       updatedAt: new Date(),
       tags: [],
       linkedObjectIds: [],
+      folderId,
     }
     set((state) => ({
       notes: [...state.notes, newNote],
@@ -59,13 +63,6 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   deleteNote: (id) => {
-    const note = get().notes.find((n) => n.id === id)
-    if (note) {
-      // Unlink from all objects - import at runtime to avoid circular dependency
-      note.linkedObjectIds.forEach((objectId) => {
-        // We'll handle this in the component that calls deleteNote
-      })
-    }
 
     set((state) => ({
       notes: state.notes.filter((note) => note.id !== id),
@@ -74,7 +71,8 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   linkNoteToObject: (noteId, objectId) => {
-    // Add object to note's linkedObjectIds
+    // This will be called from components that have access to both stores
+    // Just update the linkedObjectIds here, folder sync happens in components
     set((state) => ({
       notes: state.notes.map((note) =>
         note.id === noteId
@@ -98,6 +96,16 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
               ...note,
               linkedObjectIds: note.linkedObjectIds.filter((id) => id !== objectId),
             }
+          : note
+      ),
+    }))
+  },
+
+  moveNoteToFolder: (noteId, folderId) => {
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === noteId
+          ? { ...note, folderId, updatedAt: new Date() }
           : note
       ),
     }))

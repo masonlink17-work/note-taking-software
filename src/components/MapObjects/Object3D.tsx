@@ -182,9 +182,9 @@ function Mountain({ object, isSelected }: { object: MapObject; isSelected: boole
 }
 
 const Object3D = forwardRef<Group, Object3DProps>(
-  ({ object, isSelected, onSelect }, ref) => {
-    const groupRef = useRef<Group>(null)
-    const { draggingObjectId, setDraggingObject } = useMapStore()
+  ({ object, isSelected, onSelect }, forwardedRef) => {
+    const groupRef = useRef<Group | null>(null)
+    const { setDraggingObject } = useMapStore()
 
     // Rotate object based on rotation property
     useFrame(() => {
@@ -214,10 +214,8 @@ const Object3D = forwardRef<Group, Object3DProps>(
       <group
         ref={(node) => {
           groupRef.current = node
-          if (typeof ref === 'function') {
-            ref(node)
-          } else if (ref) {
-            ref.current = node
+          if (typeof forwardedRef === 'function') {
+            forwardedRef(node)
           }
         }}
         position={object.position}

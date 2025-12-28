@@ -6,7 +6,7 @@ import './NotePanel.css'
 
 export default function NotePanel() {
   const { selectedObjectId } = useMapStore()
-  const { notes, createNote, linkNoteToObject, unlinkNoteFromObject, selectedNoteId, selectNote } = useNoteStore()
+  const { notes, createNote, linkNoteToObject, unlinkNoteFromObject, selectedNoteId, selectNote, moveNoteToFolder } = useNoteStore()
   const [isOpen, setIsOpen] = useState(false)
 
   const selectedObject = selectedObjectId
@@ -32,24 +32,26 @@ export default function NotePanel() {
   }, [selectedObjectId, linkedNotes.length])
 
   const handleCreateNote = () => {
-    const newNote = createNote()
+    const mapStore = useMapStore.getState()
+    const obj = selectedObjectId ? mapStore.objects.find((o) => o.id === selectedObjectId) : null
+    
+    // Create note in the same folder as the object
+    const folderId = obj?.folderId || null
+    const newNote = createNote(undefined)
+    // Set folder after creation
+    if (folderId !== null) {
+      moveNoteToFolder(newNote.id, folderId)
+    }
+    
     if (selectedObjectId) {
       // Link note to object (update both stores)
       linkNoteToObject(newNote.id, selectedObjectId)
       // Update map object's linkedNotes
-      const mapStore = useMapStore.getState()
-      const obj = mapStore.objects.find((o) => o.id === selectedObjectId)
       if (obj && !obj.linkedNotes.includes(newNote.id)) {
         mapStore.updateObject(selectedObjectId, {
           linkedNotes: [...obj.linkedNotes, newNote.id],
         })
       }
-    }
-  }
-
-  const handleLinkNote = (noteId: string) => {
-    if (selectedObjectId) {
-      linkNoteToObject(noteId, selectedObjectId)
     }
   }
 

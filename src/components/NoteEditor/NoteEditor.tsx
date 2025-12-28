@@ -9,7 +9,7 @@ interface NoteEditorProps {
 }
 
 export default function NoteEditor({ noteId, onClose }: NoteEditorProps) {
-  const { notes, updateNote, deleteNote, selectedNoteId } = useNoteStore()
+  const { notes, updateNote, deleteNote } = useNoteStore()
   const note = noteId ? notes.find((n) => n.id === noteId) : null
 
   const [title, setTitle] = useState('')

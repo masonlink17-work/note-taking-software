@@ -2,9 +2,9 @@
 
 A 3D note-taking environment with an interactive map interface, resembling a top-down video game view (like Clash of Clans). Users can interact with elements (chests, castles, houses) to organize their notes in a visually engaging way.
 
-## Current Status: Phase 3 - Note System ✅
+## Current Status: Phase 4 - File Tree Sidebar ✅
 
-Phase 3 is complete! The project now has:
+Phase 4 is complete! The project now has:
 - ✅ Development environment set up (Node.js, TypeScript, Vite)
 - ✅ React + React Three Fiber integration
 - ✅ Basic 3D scene with top-down camera view
@@ -25,6 +25,12 @@ Phase 3 is complete! The project now has:
 - ✅ Note panel (opens when object is clicked)
 - ✅ Note search functionality
 - ✅ Note metadata (tags, dates, titles)
+- ✅ File tree sidebar with hierarchical folder structure
+- ✅ Folder creation/renaming/deletion
+- ✅ Note organization in folders
+- ✅ Tree view with expand/collapse
+- ✅ Two-way navigation between tree and map views
+- ✅ Search/filter in sidebar
 
 ## Getting Started
 
@@ -107,7 +113,7 @@ note-taking-software/
 
 ## Next Steps
 
-See `TECHNICAL_ANALYSIS.md` for the complete roadmap. The next phase (Phase 4) will focus on implementing a file tree sidebar for traditional note organization.
+See `TECHNICAL_ANALYSIS.md` for the complete roadmap. The next phase (Phase 5) will focus on implementing data persistence (save/load functionality).
 
 ## License
 

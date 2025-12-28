@@ -3,6 +3,15 @@
 // Map object types
 export type MapObjectType = 'chest' | 'castle' | 'house' | 'tree' | 'mountain'
 
+// Folder interface
+export interface Folder {
+  id: string
+  name: string
+  parentId: string | null // null for root folder
+  createdAt: Date
+  updatedAt: Date
+}
+
 // Note interface
 export interface Note {
   id: string
@@ -12,6 +21,7 @@ export interface Note {
   updatedAt: Date
   tags: string[]
   linkedObjectIds: string[] // Object IDs this note is linked to
+  folderId: string | null // null for root level
 }
 
 // Map object interface with all properties
@@ -23,6 +33,7 @@ export interface MapObject {
   color: string // Hex color string
   scale: number // Scale factor (default: 1)
   linkedNotes: string[] // Note IDs (for Phase 3)
+  folderId: string | null // null for root level - links object to folder
   createdAt: Date
   updatedAt: Date
 }

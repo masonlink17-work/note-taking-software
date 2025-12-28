@@ -1,8 +1,12 @@
 import { useMapStore } from '../../store/mapStore'
+import { useFolderStore } from '../../store/folderStore'
+import { useNoteStore } from '../../store/noteStore'
 import './ObjectProperties.css'
 
 export default function ObjectProperties() {
-  const { objects, selectedObjectId, updateObject } = useMapStore()
+  const { objects, selectedObjectId, updateObject, moveObjectToFolder } = useMapStore()
+  const { folders, rootFolderId } = useFolderStore()
+  const { updateNote } = useNoteStore()
 
   if (!selectedObjectId) {
     return null
@@ -23,6 +27,18 @@ export default function ObjectProperties() {
 
   const handleScaleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateObject(selectedObjectId, { scale: parseFloat(e.target.value) })
+  }
+
+  const handleFolderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newFolderId = e.target.value === (rootFolderId || '') ? null : e.target.value
+    moveObjectToFolder(selectedObjectId, newFolderId)
+    
+    // Sync all linked notes to the same folder
+    if (selectedObject) {
+      selectedObject.linkedNotes.forEach((noteId) => {
+        updateNote(noteId, { folderId: newFolderId })
+      })
+    }
   }
 
   return (
@@ -87,6 +103,26 @@ export default function ObjectProperties() {
           <span className="property-value">
             X: {selectedObject.position[0].toFixed(1)}, Z: {selectedObject.position[2].toFixed(1)}
           </span>
+        </label>
+      </div>
+
+      <div className="property-group">
+        <label>
+          <span>Folder:</span>
+          <select
+            value={selectedObject.folderId || rootFolderId || ''}
+            onChange={handleFolderChange}
+            className="folder-select"
+          >
+            <option value={rootFolderId || 'root'}>Root</option>
+            {folders
+              .filter((f) => f.id !== rootFolderId)
+              .map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              ))}
+          </select>
         </label>
       </div>
     </div>

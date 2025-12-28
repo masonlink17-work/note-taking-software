@@ -6,7 +6,6 @@ import { useMapStore } from '../../store/mapStore'
 import Object3D from '../MapObjects/Object3D'
 
 function MapScene() {
-  const gridRef = useRef<THREE.GridHelper>(null)
   const groundRef = useRef<THREE.Mesh>(null)
   const objectRefs = useRef<Map<string, THREE.Group>>(new Map())
   
@@ -38,6 +37,7 @@ function MapScene() {
           0,
           Math.round(point.z * 2) / 2,
         ]
+        // Add object - a folder will be automatically created for it
         addObject(placementMode, position)
       }
     } else {
@@ -82,7 +82,6 @@ function MapScene() {
 
       {/* Grid for visual reference - horizontal grid on XZ plane */}
       <Grid
-        ref={gridRef}
         args={[100, 100]}
         cellSize={1}
         cellThickness={0.5}

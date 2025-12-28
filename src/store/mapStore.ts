@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { MapObject, MapObjectType } from '../types'
+import { useFolderStore } from './folderStore'
 
 interface MapStore {
   objects: MapObject[]
@@ -8,10 +9,11 @@ interface MapStore {
   draggingObjectId: string | null
 
   // Object management
-  addObject: (type: MapObjectType, position: [number, number, number]) => void
+  addObject: (type: MapObjectType, position: [number, number, number], folderId?: string | null) => void
   removeObject: (id: string) => void
   updateObject: (id: string, updates: Partial<MapObject>) => void
   moveObject: (id: string, position: [number, number, number]) => void
+  moveObjectToFolder: (id: string, folderId: string | null) => void
 
   // Selection
   selectObject: (id: string | null) => void
@@ -44,13 +46,24 @@ const defaultScales: Record<MapObjectType, number> = {
 
 const generateId = () => `obj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
-export const useMapStore = create<MapStore>((set) => ({
+export const useMapStore = create<MapStore>((set, get) => ({
   objects: [],
   selectedObjectId: null,
   placementMode: null,
   draggingObjectId: null,
 
-  addObject: (type, position) => {
+  addObject: (type, position, folderId = null) => {
+    // If no folderId provided, create a new folder for this object
+    let objectFolderId = folderId
+    if (!folderId) {
+      const folderStore = useFolderStore.getState()
+      const rootFolderId = folderStore.rootFolderId
+      // Create folder with object type and timestamp as name
+      const folderName = `${type.charAt(0).toUpperCase() + type.slice(1)} ${Date.now()}`
+      const newFolder = folderStore.createFolder(folderName, rootFolderId)
+      objectFolderId = newFolder.id
+    }
+
     const newObject: MapObject = {
       id: generateId(),
       type,
@@ -59,6 +72,7 @@ export const useMapStore = create<MapStore>((set) => ({
       color: defaultColors[type],
       scale: defaultScales[type],
       linkedNotes: [],
+      folderId: objectFolderId,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -70,11 +84,22 @@ export const useMapStore = create<MapStore>((set) => ({
   },
 
   removeObject: (id) => {
+    const obj = get().objects.find((o: any) => o.id === id)
+    const folderId = obj?.folderId
+    
+    // Remove object from state first
     set((state) => ({
       objects: state.objects.filter((obj) => obj.id !== id),
       selectedObjectId: state.selectedObjectId === id ? null : state.selectedObjectId,
       draggingObjectId: state.draggingObjectId === id ? null : state.draggingObjectId,
     }))
+    
+    // Then delete the associated folder (after object is removed to prevent recursion)
+    if (folderId) {
+      const folderStore = useFolderStore.getState()
+      // Delete the folder, skipping the object check to prevent recursion
+      folderStore.deleteFolder(folderId, true)
+    }
   },
 
   updateObject: (id, updates) => {
@@ -111,5 +136,15 @@ export const useMapStore = create<MapStore>((set) => ({
 
   setDraggingObject: (id) => {
     set({ draggingObjectId: id })
+  },
+
+  moveObjectToFolder: (id, folderId) => {
+    set((state) => ({
+      objects: state.objects.map((obj) =>
+        obj.id === id
+          ? { ...obj, folderId, updatedAt: new Date() }
+          : obj
+      ),
+    }))
   },
 }))

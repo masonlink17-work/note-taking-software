@@ -6,6 +6,7 @@ import ObjectToolbar from './components/ObjectToolbar/ObjectToolbar'
 import ObjectProperties from './components/ObjectProperties/ObjectProperties'
 import NotePanel from './components/NotePanel/NotePanel'
 import NoteSearch from './components/NoteSearch/NoteSearch'
+import FileTreeSidebar from './components/FileTreeSidebar/FileTreeSidebar'
 import { useMapStore } from './store/mapStore'
 import './App.css'
 
@@ -35,6 +36,7 @@ function App() {
 
   return (
     <div className="app-container">
+      <FileTreeSidebar />
       <ObjectToolbar />
       <ObjectProperties />
       <NoteSearch />
