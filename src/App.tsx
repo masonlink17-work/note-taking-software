@@ -7,11 +7,20 @@ import ObjectProperties from './components/ObjectProperties/ObjectProperties'
 import NotePanel from './components/NotePanel/NotePanel'
 import NoteSearch from './components/NoteSearch/NoteSearch'
 import FileTreeSidebar from './components/FileTreeSidebar/FileTreeSidebar'
+import DataManagement from './components/DataManagement/DataManagement'
 import { useMapStore } from './store/mapStore'
+import { initializePersistence } from './storage/persistence'
 import './App.css'
 
 function App() {
   const { selectedObjectId, removeObject, setPlacementMode, draggingObjectId } = useMapStore()
+
+  // Initialize persistence on app start
+  useEffect(() => {
+    initializePersistence().catch((error) => {
+      console.error('Failed to initialize persistence:', error)
+    })
+  }, [])
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -41,6 +50,7 @@ function App() {
       <ObjectProperties />
       <NoteSearch />
       <NotePanel />
+      <DataManagement />
       <Canvas
         camera={{
           position: [0, 25, 0],
