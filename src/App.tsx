@@ -25,6 +25,16 @@ function App() {
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't delete when user is editing text (e.g. renaming in file tree)
+      const target = e.target as HTMLElement
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return
+      }
+
       // Delete selected object
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedObjectId) {
         e.preventDefault()

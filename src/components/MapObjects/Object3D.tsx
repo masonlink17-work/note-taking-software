@@ -195,9 +195,7 @@ function Chest({ object, isSelected }: { object: MapObject; isSelected: boolean 
   const glowRef = useRef<Mesh>(null)
   const [lidRotation, setLidRotation] = useState(-0.3) // Closed position
   const [isOpening, setIsOpening] = useState(false)
-  const [showParticles, setShowParticles] = useState(false)
   const [showSparkles, setShowSparkles] = useState(false)
-  const [persistentPaperIds, setPersistentPaperIds] = useState<number[]>([])
   const [typingPaperIds, setTypingPaperIds] = useState<number[]>([])
   const [typingSparkleIds, setTypingSparkleIds] = useState<number[]>([])
   const nextPaperIdRef = useRef(0)
@@ -242,18 +240,23 @@ function Chest({ object, isSelected }: { object: MapObject; isSelected: boolean 
   useEffect(() => {
     if (isSelected && !isOpening) {
       setIsOpening(true)
-      setShowParticles(true)
       setShowSparkles(true)
-      // Initialize persistent papers
-      const initialPapers = Array.from({ length: 4 }, () => nextPaperIdRef.current++)
-      setPersistentPaperIds(initialPapers)
+      // Only show sparkles on open, not papers
+      // Papers will appear when typing is detected
       lastContentLengthRef.current = 0 // Reset for typing detection
+      // Initialize content length for typing detection
+      const noteStore = useNoteStore.getState()
+      const linkedNotes = noteStore.notes.filter((note: Note) => 
+        object.linkedNotes.includes(note.id)
+      )
+      if (linkedNotes.length > 0) {
+        const totalLength = linkedNotes.reduce((sum: number, note: Note) => sum + note.content.length, 0)
+        lastContentLengthRef.current = totalLength
+      }
     } else if (!isSelected && isOpening) {
       // Close lid when deselected
       setIsOpening(false)
-      setShowParticles(false)
       setShowSparkles(false)
-      setPersistentPaperIds([])
       setTypingPaperIds([])
       setTypingSparkleIds([])
     }
@@ -294,30 +297,120 @@ function Chest({ object, isSelected }: { object: MapObject; isSelected: boolean 
     [-0.3, 1.7, -0.5] as [number, number, number],
   ], [])
   
+  // Medieval wood color variations
+  const woodColor = object.color
+  const metalColor = '#6a6358'
+  const rustColor = '#8b6914'
+  
   return (
     <group position={[0, 0, 0]} scale={object.scale}>
-      {/* Chest base */}
+      {/* Chest base - detailed wooden box */}
       <mesh position={[0, 0.5, 0]} castShadow>
         <boxGeometry args={[1.5, 1, 1.2]} />
-        <meshStandardMaterial color={object.color} />
+        <meshStandardMaterial 
+          color={woodColor}
+          roughness={0.8}
+          metalness={0.1}
+        />
       </mesh>
       
-      {/* Chest lid - positioned to pivot around back edge */}
+      {/* Decorative metal bands - horizontal */}
+      <mesh position={[0, 0.2, 0]} castShadow>
+        <boxGeometry args={[1.55, 0.08, 1.25]} />
+        <meshStandardMaterial 
+          color={metalColor}
+          roughness={0.4}
+          metalness={0.8}
+        />
+      </mesh>
+      <mesh position={[0, 0.8, 0]} castShadow>
+        <boxGeometry args={[1.55, 0.08, 1.25]} />
+        <meshStandardMaterial 
+          color={metalColor}
+          roughness={0.4}
+          metalness={0.8}
+        />
+      </mesh>
+      
+      {/* Metal corner reinforcements */}
+      {[[-0.75, -0.5], [0.75, -0.5], [-0.75, 0.5], [0.75, 0.5]].map(([x, y], i) => (
+        <mesh key={i} position={[x, 0.5, y]} castShadow>
+          <boxGeometry args={[0.12, 1.05, 0.12]} />
+          <meshStandardMaterial 
+            color={rustColor}
+            roughness={0.6}
+            metalness={0.7}
+          />
+        </mesh>
+      ))}
+      
+      {/* Chest lid - detailed with metal trim */}
       <group ref={lidGroupRef} position={[0, 1.0, -0.6]} rotation={[lidRotation, 0, 0]}>
         <mesh
-          position={[0, 0.1, 0.6]} // Offset so rotation happens at back edge
+          position={[0, 0.1, 0.6]}
           castShadow
         >
           <boxGeometry args={[1.5, 0.2, 1.2]} />
-          <meshStandardMaterial color={object.color} />
+          <meshStandardMaterial 
+            color={woodColor}
+            roughness={0.8}
+            metalness={0.1}
+          />
+        </mesh>
+        
+        {/* Lid metal edge trim */}
+        <mesh position={[0, 0.2, 0.6]} castShadow>
+          <boxGeometry args={[1.55, 0.05, 1.25]} />
+          <meshStandardMaterial 
+            color={metalColor}
+            roughness={0.4}
+            metalness={0.8}
+          />
         </mesh>
       </group>
       
-      {/* Chest lock */}
-      <mesh position={[0, 0.5, 0.6]} castShadow>
-        <cylinderGeometry args={[0.1, 0.1, 0.1, 16]} />
-        <meshStandardMaterial color="#4a4a4a" />
-      </mesh>
+      {/* Ornate medieval lock */}
+      <group position={[0, 0.5, 0.61]}>
+        {/* Lock plate */}
+        <mesh castShadow>
+          <boxGeometry args={[0.3, 0.3, 0.05]} />
+          <meshStandardMaterial 
+            color={metalColor}
+            roughness={0.3}
+            metalness={0.9}
+          />
+        </mesh>
+        {/* Lock cylinder */}
+        <mesh position={[0, 0, 0.08]} castShadow>
+          <cylinderGeometry args={[0.08, 0.08, 0.12, 16]} />
+          <meshStandardMaterial 
+            color={rustColor}
+            roughness={0.5}
+            metalness={0.8}
+          />
+        </mesh>
+        {/* Keyhole */}
+        <mesh position={[0, 0, 0.12]} castShadow>
+          <cylinderGeometry args={[0.04, 0.04, 0.06, 8]} />
+          <meshStandardMaterial 
+            color="#2a2a2a"
+            roughness={1}
+            metalness={0}
+          />
+        </mesh>
+      </group>
+      
+      {/* Decorative metal studs */}
+      {[[-0.5, 0.5], [0.5, 0.5], [-0.5, -0.5], [0.5, -0.5]].map(([x, y], i) => (
+        <mesh key={`stud-${i}`} position={[x, 0.5, y]} castShadow>
+          <cylinderGeometry args={[0.05, 0.05, 0.02, 12]} />
+          <meshStandardMaterial 
+            color={metalColor}
+            roughness={0.3}
+            metalness={0.9}
+          />
+        </mesh>
+      ))}
       
       {/* Glowing effect when open */}
       {isSelected && (
@@ -341,18 +434,7 @@ function Chest({ object, isSelected }: { object: MapObject; isSelected: boolean 
         </>
       )}
       
-      {/* Persistent floating paper particles */}
-      {showParticles &&
-        persistentPaperIds.map((id, index) => (
-          <PaperParticle 
-            key={`persistent-${id}`} 
-            delay={index * 0.1} 
-            isPersistent={true}
-            id={id}
-          />
-        ))}
-      
-      {/* Temporary typing effect papers */}
+      {/* Paper particles - only appear when typing */}
       {typingPaperIds.map((id) => (
         <PaperParticle 
           key={`typing-${id}`} 
@@ -395,46 +477,309 @@ function Chest({ object, isSelected }: { object: MapObject; isSelected: boolean 
   )
 }
 
-// Castle component
+// Castle component - detailed medieval castle
 function Castle({ object, isSelected }: { object: MapObject; isSelected: boolean }) {
+  const stoneColor = object.color
+  
   return (
     <group position={[0, 0, 0]} scale={object.scale}>
-      {/* Main tower */}
-      <mesh position={[0, 1.5, 0]} castShadow>
-        <cylinderGeometry args={[1, 1, 3, 8]} />
-        <meshStandardMaterial color={object.color} />
-      </mesh>
-      {/* Castle base */}
+      {/* Main base - large square foundation */}
       <mesh position={[0, 0.5, 0]} castShadow>
-        <boxGeometry args={[2.5, 1, 2.5]} />
-        <meshStandardMaterial color={object.color} />
+        <boxGeometry args={[2.8, 1, 2.8]} />
+        <meshStandardMaterial 
+          color={stoneColor}
+          roughness={0.9}
+          metalness={0}
+        />
       </mesh>
-      {/* Battlements */}
-      <mesh position={[-0.6, 2.8, -0.6]} castShadow>
-        <boxGeometry args={[0.4, 0.4, 0.4]} />
-        <meshStandardMaterial color={object.color} />
+      
+      {/* Main central tower - taller and more detailed */}
+      <mesh position={[0, 2.2, 0]} castShadow>
+        <cylinderGeometry args={[1.1, 1.2, 4, 12]} />
+        <meshStandardMaterial 
+          color={stoneColor}
+          roughness={0.9}
+          metalness={0}
+        />
       </mesh>
-      <mesh position={[0.6, 2.8, -0.6]} castShadow>
-        <boxGeometry args={[0.4, 0.4, 0.4]} />
-        <meshStandardMaterial color={object.color} />
+      
+      {/* Tower windows */}
+      {[0, Math.PI / 2, Math.PI, Math.PI * 1.5].map((angle, i) => (
+        <group key={i} position={[Math.cos(angle) * 1.15, 2.5, Math.sin(angle) * 1.15]}>
+          <mesh rotation={[0, angle + Math.PI / 2, 0]} castShadow>
+            <boxGeometry args={[0.25, 0.4, 0.15]} />
+            <meshStandardMaterial 
+              color="#1a1a2e"
+              roughness={0.2}
+              metalness={0}
+            />
+          </mesh>
+        </group>
+      ))}
+      
+      {/* Detailed battlements on main tower */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const angle = (i / 8) * Math.PI * 2
+        return (
+          <mesh 
+            key={i} 
+            position={[Math.cos(angle) * 1.15, 4.3, Math.sin(angle) * 1.15]} 
+            castShadow
+          >
+            <boxGeometry args={[0.25, 0.4, 0.25]} />
+            <meshStandardMaterial 
+              color={stoneColor}
+              roughness={0.9}
+              metalness={0}
+            />
+          </mesh>
+        )
+      })}
+      
+      {/* Corner towers */}
+      {[[-1.1, -1.1], [1.1, -1.1], [-1.1, 1.1], [1.1, 1.1]].map(([x, z], i) => (
+        <group key={i}>
+          <mesh position={[x, 1.5, z]} castShadow>
+            <cylinderGeometry args={[0.4, 0.45, 2.5, 8]} />
+            <meshStandardMaterial 
+              color={stoneColor}
+              roughness={0.9}
+              metalness={0}
+            />
+          </mesh>
+          {/* Corner tower battlements */}
+          {[0, Math.PI / 2, Math.PI, Math.PI * 1.5].map((angle, j) => (
+            <mesh 
+              key={j}
+              position={[x + Math.cos(angle) * 0.42, 2.9, z + Math.sin(angle) * 0.42]} 
+              castShadow
+            >
+              <boxGeometry args={[0.15, 0.25, 0.15]} />
+              <meshStandardMaterial 
+                color={stoneColor}
+                roughness={0.9}
+                metalness={0}
+              />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      
+      {/* Castle walls connecting towers */}
+      {[
+        [-1.1, 0, 0, 1.5, 0.15], [1.1, 0, 0, 1.5, 0.15],
+        [0, -1.1, Math.PI / 2, 1.5, 0.15], [0, 1.1, Math.PI / 2, 1.5, 0.15]
+      ].map(([x, z, rot, height, width], i) => (
+        <mesh key={i} position={[x, height, z]} rotation={[0, rot, 0]} castShadow>
+          <boxGeometry args={[2.2, height * 2, width]} />
+          <meshStandardMaterial 
+            color={stoneColor}
+            roughness={0.9}
+            metalness={0}
+          />
+        </mesh>
+      ))}
+      
+      {/* Drawbridge/gate */}
+      <mesh position={[0, 0.8, 1.475]} castShadow>
+        <boxGeometry args={[0.8, 1.2, 0.15]} />
+        <meshStandardMaterial 
+          color="#654321"
+          roughness={0.8}
+          metalness={0.1}
+        />
       </mesh>
-      <mesh position={[-0.6, 2.8, 0.6]} castShadow>
-        <boxGeometry args={[0.4, 0.4, 0.4]} />
-        <meshStandardMaterial color={object.color} />
-      </mesh>
-      <mesh position={[0.6, 2.8, 0.6]} castShadow>
-        <boxGeometry args={[0.4, 0.4, 0.4]} />
-        <meshStandardMaterial color={object.color} />
+      {/* Gate metal bands */}
+      {[0.3, -0.3].map((y, i) => (
+        <mesh key={i} position={[0, 0.8 + y, 1.52]} castShadow>
+          <boxGeometry args={[0.85, 0.08, 0.12]} />
+          <meshStandardMaterial 
+            color="#4a4a4a"
+            roughness={0.4}
+            metalness={0.8}
+          />
+        </mesh>
+      ))}
+      
+      {/* Flag pole */}
+      <mesh position={[0, 4.7, 0]} castShadow>
+        <cylinderGeometry args={[0.03, 0.03, 0.8, 8]} />
+        <meshStandardMaterial 
+          color="#8b4513"
+          roughness={0.6}
+          metalness={0.1}
+        />
       </mesh>
       {/* Flag */}
-      <mesh position={[0, 3.5, 0]} castShadow>
-        <boxGeometry args={[0.05, 0.8, 0.05]} />
-        <meshStandardMaterial color="#8b4513" />
+      <mesh position={[0.35, 5.3, 0]} rotation={[0, 0, Math.PI / 4]} castShadow>
+        <boxGeometry args={[0.5, 0.35, 0.02]} />
+        <meshStandardMaterial 
+          color="#c41e3a"
+          roughness={0.7}
+          metalness={0}
+        />
       </mesh>
+      
+      {/* Selection highlight */}
+      {isSelected && (
+        <mesh position={[0, 2.2, 0]}>
+          <cylinderGeometry args={[1.4, 1.4, 5, 12]} />
+          <meshStandardMaterial color="#00ff00" transparent opacity={0.3} wireframe />
+        </mesh>
+      )}
+    </group>
+  )
+}
+
+// House component - beautiful medieval cottage
+function House({ object, isSelected }: { object: MapObject; isSelected: boolean }) {
+  const wallColor = object.color
+  const roofColor = '#5a3520'
+  const darkWood = '#3d2817'
+  const stoneColor = '#8b8782'
+  
+  return (
+    <group position={[0, 0, 0]} scale={object.scale}>
+      {/* Stone foundation - wider base */}
+      <mesh position={[0, 0.2, 0]} castShadow>
+        <boxGeometry args={[2.4, 0.4, 2.4]} />
+        <meshStandardMaterial 
+          color={stoneColor}
+          roughness={0.95}
+          metalness={0}
+        />
+      </mesh>
+      
+      {/* Main house structure - better proportions */}
+      <mesh position={[0, 1.1, 0]} castShadow>
+        <boxGeometry args={[2.2, 2.2, 2.2]} />
+        <meshStandardMaterial 
+          color={wallColor}
+          roughness={0.85}
+          metalness={0}
+        />
+      </mesh>
+      
+      {/* Roof - proper pyramid roof */}
+      <mesh position={[0, 2.6, 0]} castShadow>
+        <coneGeometry args={[1.8, 1.5, 4]} />
+        <meshStandardMaterial 
+          color={roofColor}
+          roughness={0.95}
+          metalness={0}
+        />
+      </mesh>
+      
+      {/* Roof overhang/eaves */}
+      <mesh position={[0, 2.45, 0]} castShadow>
+        <cylinderGeometry args={[1.85, 1.85, 0.1, 4]} />
+        <meshStandardMaterial 
+          color={roofColor}
+          roughness={0.95}
+          metalness={0}
+        />
+      </mesh>
+      
+      {/* Chimney - better positioned */}
+      <group position={[0.85, 2.2, -0.85]}>
+        <mesh castShadow>
+          <boxGeometry args={[0.25, 1.2, 0.25]} />
+          <meshStandardMaterial 
+            color={stoneColor}
+            roughness={0.9}
+            metalness={0}
+          />
+        </mesh>
+        {/* Chimney top */}
+        <mesh position={[0, 0.725, 0]} castShadow>
+          <boxGeometry args={[0.3, 0.15, 0.3]} />
+          <meshStandardMaterial 
+            color="#5a5a5a"
+            roughness={0.7}
+            metalness={0.1}
+          />
+        </mesh>
+      </group>
+      
+      {/* Door - centered and proportional */}
+      <group position={[0, 0.8, 1.12]}>
+        {/* Door frame */}
+        <mesh castShadow>
+          <boxGeometry args={[0.9, 1.6, 0.08]} />
+          <meshStandardMaterial 
+            color={darkWood}
+            roughness={0.85}
+            metalness={0}
+          />
+        </mesh>
+        {/* Door panel */}
+        <mesh position={[0, 0, 0.02]} castShadow>
+          <boxGeometry args={[0.75, 1.5, 0.05]} />
+          <meshStandardMaterial 
+            color="#4a2c17"
+            roughness={0.9}
+            metalness={0}
+          />
+        </mesh>
+        {/* Door handle */}
+        <mesh position={[0.3, 0, 0.06]} castShadow>
+          <cylinderGeometry args={[0.05, 0.05, 0.04, 8]} />
+          <meshStandardMaterial 
+            color="#6a6a6a"
+            roughness={0.2}
+            metalness={0.9}
+          />
+        </mesh>
+      </group>
+      
+      {/* Windows - better sized and positioned */}
+      {[-0.8, 0.8].map((x, i) => (
+        <group key={i} position={[x, 1.4, 1.12]}>
+          {/* Window frame */}
+          <mesh castShadow>
+            <boxGeometry args={[0.6, 0.6, 0.08]} />
+            <meshStandardMaterial 
+              color={darkWood}
+              roughness={0.85}
+              metalness={0}
+            />
+          </mesh>
+          {/* Window glass */}
+          <mesh position={[0, 0, 0.02]} castShadow>
+            <boxGeometry args={[0.5, 0.5, 0.03]} />
+            <meshStandardMaterial 
+              color="#7aa7c7"
+              roughness={0.1}
+              metalness={0}
+              transparent
+              opacity={0.6}
+            />
+          </mesh>
+          {/* Window cross - vertical */}
+          <mesh position={[0, 0, 0.045]} castShadow>
+            <boxGeometry args={[0.05, 0.5, 0.02]} />
+            <meshStandardMaterial 
+              color={darkWood}
+              roughness={0.9}
+              metalness={0}
+            />
+          </mesh>
+          {/* Window cross - horizontal */}
+          <mesh position={[0, 0, 0.045]} rotation={[0, 0, Math.PI / 2]} castShadow>
+            <boxGeometry args={[0.05, 0.5, 0.02]} />
+            <meshStandardMaterial 
+              color={darkWood}
+              roughness={0.9}
+              metalness={0}
+            />
+          </mesh>
+        </group>
+      ))}
+      
       {/* Selection highlight */}
       {isSelected && (
         <mesh position={[0, 1.5, 0]}>
-          <cylinderGeometry args={[1.3, 1.3, 4, 8]} />
+          <boxGeometry args={[2.5, 3.5, 2.5]} />
           <meshStandardMaterial color="#00ff00" transparent opacity={0.3} wireframe />
         </mesh>
       )}
@@ -442,39 +787,78 @@ function Castle({ object, isSelected }: { object: MapObject; isSelected: boolean
   )
 }
 
-// House component
-function House({ object, isSelected }: { object: MapObject; isSelected: boolean }) {
+// Tree component - beautiful natural tree
+function Tree({ object, isSelected }: { object: MapObject; isSelected: boolean }) {
+  const barkColor = '#7d5a3f'
+  const darkBark = '#5a4030'
+  const foliageColor = object.color
+  
   return (
     <group position={[0, 0, 0]} scale={object.scale}>
-      {/* House base */}
-      <mesh position={[0, 0.8, 0]} castShadow>
-        <boxGeometry args={[2, 1.6, 2]} />
-        <meshStandardMaterial color={object.color} />
+      {/* Main trunk - natural taper */}
+      <mesh position={[0, 1.5, 0]} castShadow>
+        <cylinderGeometry args={[0.2, 0.3, 3, 10]} />
+        <meshStandardMaterial 
+          color={barkColor}
+          roughness={0.98}
+          metalness={0}
+        />
       </mesh>
-      {/* Roof */}
-      <mesh position={[0, 2.2, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
-        <coneGeometry args={[1.8, 1.2, 4]} />
-        <meshStandardMaterial color="#8b4513" />
+      
+      {/* Foliage - main canopy sphere */}
+      <mesh position={[0, 3.2, 0]} castShadow>
+        <sphereGeometry args={[1.1, 12, 12]} />
+        <meshStandardMaterial 
+          color={foliageColor}
+          roughness={0.95}
+          metalness={0}
+        />
       </mesh>
-      {/* Door */}
-      <mesh position={[0, 0.4, 1.01]} castShadow>
-        <boxGeometry args={[0.6, 1, 0.1]} />
-        <meshStandardMaterial color="#654321" />
+      
+      {/* Secondary foliage clusters for natural look */}
+      {[0, Math.PI * 0.66, Math.PI * 1.33].map((angle, i) => (
+        <mesh 
+          key={i}
+          position={[
+            Math.cos(angle) * 0.6, 
+            3.0 + i * 0.3, 
+            Math.sin(angle) * 0.6
+          ]} 
+          castShadow
+        >
+          <sphereGeometry args={[0.7, 10, 10]} />
+          <meshStandardMaterial 
+            color={foliageColor}
+            roughness={0.95}
+            metalness={0}
+          />
+        </mesh>
+      ))}
+      
+      {/* Upper foliage accent */}
+      <mesh position={[0, 3.8, 0]} castShadow>
+        <sphereGeometry args={[0.6, 10, 10]} />
+        <meshStandardMaterial 
+          color={foliageColor}
+          roughness={0.95}
+          metalness={0}
+        />
       </mesh>
-      {/* Window 1 */}
-      <mesh position={[-0.7, 1.2, 1.01]} castShadow>
-        <boxGeometry args={[0.4, 0.4, 0.1]} />
-        <meshStandardMaterial color="#87ceeb" />
+      
+      {/* Root flare - natural base */}
+      <mesh position={[0, 0.3, 0]} castShadow>
+        <cylinderGeometry args={[0.35, 0.25, 0.6, 10]} />
+        <meshStandardMaterial 
+          color={darkBark}
+          roughness={0.98}
+          metalness={0}
+        />
       </mesh>
-      {/* Window 2 */}
-      <mesh position={[0.7, 1.2, 1.01]} castShadow>
-        <boxGeometry args={[0.4, 0.4, 0.1]} />
-        <meshStandardMaterial color="#87ceeb" />
-      </mesh>
+      
       {/* Selection highlight */}
       {isSelected && (
-        <mesh position={[0, 1, 0]}>
-          <boxGeometry args={[2.3, 2.5, 2.3]} />
+        <mesh position={[0, 2.5, 0]}>
+          <cylinderGeometry args={[1.4, 1.4, 5, 12]} />
           <meshStandardMaterial color="#00ff00" transparent opacity={0.3} wireframe />
         </mesh>
       )}
@@ -482,53 +866,67 @@ function House({ object, isSelected }: { object: MapObject; isSelected: boolean 
   )
 }
 
-// Tree component
-function Tree({ object, isSelected }: { object: MapObject; isSelected: boolean }) {
+// Mountain component - majestic mountain range
+function Mountain({ object, isSelected }: { object: MapObject; isSelected: boolean }) {
+  const rockColor = object.color
+  const darkRock = '#5a5a5a'
+  
   return (
     <group position={[0, 0, 0]} scale={object.scale}>
-      {/* Trunk */}
-      <mesh position={[0, 1, 0]} castShadow>
-        <cylinderGeometry args={[0.2, 0.3, 2, 8]} />
-        <meshStandardMaterial color="#8b4513" />
+      {/* Main peak - tall and majestic */}
+      <mesh position={[0, 2, 0]} castShadow>
+        <coneGeometry args={[1.8, 4, 12]} />
+        <meshStandardMaterial 
+          color={rockColor}
+          roughness={0.98}
+          metalness={0}
+        />
       </mesh>
-      {/* Foliage */}
-      <mesh position={[0, 2.5, 0]} castShadow>
-        <coneGeometry args={[1.2, 2, 8]} />
-        <meshStandardMaterial color={object.color} />
+      
+      {/* Secondary peak - left side */}
+      <mesh position={[-1.1, 1.4, -0.4]} castShadow>
+        <coneGeometry args={[1.1, 2.8, 10]} />
+        <meshStandardMaterial 
+          color={rockColor}
+          roughness={0.98}
+          metalness={0}
+        />
       </mesh>
+      
+      {/* Secondary peak - right side */}
+      <mesh position={[1.1, 1.4, -0.4]} castShadow>
+        <coneGeometry args={[1.1, 2.8, 10]} />
+        <meshStandardMaterial 
+          color={rockColor}
+          roughness={0.98}
+          metalness={0}
+        />
+      </mesh>
+      
+      {/* Base - solid foundation */}
+      <mesh position={[0, 0.3, 0]} castShadow>
+        <cylinderGeometry args={[2.2, 2.5, 0.6, 14]} />
+        <meshStandardMaterial 
+          color={darkRock}
+          roughness={0.98}
+          metalness={0}
+        />
+      </mesh>
+      
+      {/* Snow cap - clean and simple */}
+      <mesh position={[0, 3.8, 0]} castShadow>
+        <coneGeometry args={[1.0, 1.0, 12]} />
+        <meshStandardMaterial 
+          color="#ffffff"
+          roughness={0.85}
+          metalness={0}
+        />
+      </mesh>
+      
       {/* Selection highlight */}
       {isSelected && (
         <mesh position={[0, 2, 0]}>
-          <cylinderGeometry args={[1.5, 1.5, 4, 8]} />
-          <meshStandardMaterial color="#00ff00" transparent opacity={0.3} wireframe />
-        </mesh>
-      )}
-    </group>
-  )
-}
-
-// Mountain component
-function Mountain({ object, isSelected }: { object: MapObject; isSelected: boolean }) {
-  return (
-    <group position={[0, 0, 0]} scale={object.scale}>
-      {/* Main peak */}
-      <mesh position={[0, 1.5, 0]} castShadow>
-        <coneGeometry args={[2, 3, 8]} />
-        <meshStandardMaterial color={object.color} />
-      </mesh>
-      {/* Secondary peak */}
-      <mesh position={[-1, 1, -0.5]} castShadow>
-        <coneGeometry args={[1.2, 2, 8]} />
-        <meshStandardMaterial color={object.color} />
-      </mesh>
-      <mesh position={[1, 1, -0.5]} castShadow>
-        <coneGeometry args={[1.2, 2, 8]} />
-        <meshStandardMaterial color={object.color} />
-      </mesh>
-      {/* Selection highlight */}
-      {isSelected && (
-        <mesh position={[0, 1.5, 0]}>
-          <coneGeometry args={[2.3, 3.5, 8]} />
+          <coneGeometry args={[2.2, 4.5, 12]} />
           <meshStandardMaterial color="#00ff00" transparent opacity={0.3} wireframe />
         </mesh>
       )}

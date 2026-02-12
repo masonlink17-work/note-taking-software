@@ -1,29 +1,34 @@
 .object-toolbar {
   position: fixed;
-  top: 20px;
-  left: 340px;
-  background: rgba(30, 30, 30, 0.95);
-  border: 1px solid #555;
-  border-radius: 8px;
-  padding: 16px;
+  top: 24px;
+  left: 360px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 240, 245, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 182, 193, 0.4);
+  border-radius: 20px;
+  padding: 20px;
   z-index: 100;
-  min-width: 200px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  color: #fff;
+  min-width: 220px;
+  box-shadow: 
+    0 8px 32px rgba(255, 182, 193, 0.3),
+    0 2px 8px rgba(255, 182, 193, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: #5a4d7a;
   outline: none;
 }
 
 .object-toolbar h3 {
-  margin: 0 0 12px 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #ccc;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #d4a5ff;
+  text-transform: none;
+  letter-spacing: 0;
+  text-shadow: 0 1px 2px rgba(212, 165, 255, 0.3);
 }
 
 .toolbar-section {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .toolbar-section:last-child {
@@ -33,82 +38,99 @@
 .object-buttons {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .object-button {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  color: #fff;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 240, 250, 0.8) 100%);
+  border: 2px solid rgba(255, 182, 193, 0.3);
+  border-radius: 16px;
+  color: #5a4d7a;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.2);
 }
 
 .object-button:hover {
-  background: #3a3a3a;
-  border-color: #666;
-  transform: translateX(2px);
+  background: linear-gradient(135deg, rgba(255, 240, 250, 0.95) 0%, rgba(255, 220, 230, 0.95) 100%);
+  border-color: rgba(255, 182, 193, 0.6);
+  transform: translateX(4px) scale(1.02);
+  box-shadow: 0 4px 16px rgba(255, 182, 193, 0.3);
 }
 
 .object-button.active {
-  background: #4a9eff;
-  border-color: #6bb0ff;
-  box-shadow: 0 0 8px rgba(74, 158, 255, 0.5);
+  background: linear-gradient(135deg, #ffb3d9 0%, #ff8cc8 100%);
+  border-color: #ff66b3;
+  box-shadow: 
+    0 4px 20px rgba(255, 140, 200, 0.4),
+    0 0 0 3px rgba(255, 182, 193, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: white;
+  transform: scale(1.05);
 }
 
 .object-icon {
-  font-size: 20px;
+  font-size: 24px;
   line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .object-label {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .selection-info,
 .placement-hint {
-  padding: 12px;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(255, 240, 250, 0.6) 0%, rgba(255, 220, 230, 0.6) 100%);
+  border: 2px dashed rgba(255, 182, 193, 0.4);
+  border-radius: 16px;
   font-size: 13px;
+  color: #7a6a9a;
 }
 
 .selection-info p,
 .placement-hint p {
-  margin: 0 0 10px 0;
-  color: #ccc;
+  margin: 0 0 12px 0;
+  color: #7a6a9a;
+  font-weight: 500;
 }
 
 .delete-button,
 .cancel-button {
   width: 100%;
-  padding: 8px;
-  background: #dc3545;
-  border: 1px solid #c82333;
-  border-radius: 4px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #ff9aa2 0%, #ff6b9d 100%);
+  border: 2px solid #ff8cc8;
+  border-radius: 14px;
   color: #fff;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: background 0.2s;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(255, 154, 162, 0.3);
 }
 
 .delete-button:hover {
-  background: #c82333;
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff4789 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.4);
 }
 
 .cancel-button {
-  background: #6c757d;
-  border-color: #5a6268;
+  background: linear-gradient(135deg, #b4a7d6 0%, #9b8fb8 100%);
+  border-color: #a599c7;
+  margin-top: 8px;
 }
 
 .cancel-button:hover {
-  background: #5a6268;
+  background: linear-gradient(135deg, #9b8fb8 0%, #827599 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(155, 143, 184, 0.4);
 }
